@@ -1,3 +1,8 @@
 .quill > .ql-toolbar:first-child {
     display: none !important;
   }
+
+.ql-container {
+  min-height: 0;
+  flex-shrink: 1;
+}

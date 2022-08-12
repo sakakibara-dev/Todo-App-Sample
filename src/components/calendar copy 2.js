@@ -20,6 +20,10 @@ export default function Calendar(props) {
   let [selectedDate, setSelectedDate] = useState(dayjs(today));
   
   useEffect(() => {
+    
+  console.log("####################")
+  console.log(props)
+    //if (props && props.onSelectDate) props.onSelectDate.dayjs(selectedDate);
     if (props && props.onSelectDate) props.onSelectDate(selectedDate);
   }, [selectedDate])
 
@@ -74,9 +78,9 @@ export default function Calendar(props) {
     setCurrentDate(dayjs(date));
   }
 
-  return <div className="flex flex-col border border-slate-300 bg-white p-2">
-    <div className="font-bold flex bg-white">
-      <span className="mr-auto ml-2 w-8">{ currentDate.year() }</span>
+  return <>
+    <div className="px-4 pb-0.5 pt-4 text-xl font-bold flex bg-white">
+      <span className="mr-auto w-16">{ currentDate.year() }</span>
       {
         tall ? <span className="mx-auto flex">
           <span className="my-auto px-4" onClick={() => setCurrentDate(currentDate.subtract(1, 'month'))}><FontAwesomeIcon icon={faAngleLeft} /></span>
@@ -89,23 +93,29 @@ export default function Calendar(props) {
           <span className="my-auto px-4" onClick={nextDate}><FontAwesomeIcon icon={faAngleRight} /></span>
         </span>
       }
-      <span className="ml-auto mr-2 cursor-pointer w-8 text-right">
+      <span className="ml-auto cursor-pointer w-16 text-right">
         <FontAwesomeIcon icon={tall ? faCalendarWeek : faCalendarAlt } className="" onClick={changeCalender} />
       </span>
     </div>
     <div className="bg-coolGray-50 p-px">
       {
         tall && <div className={`grid grid-cols-7 gap-px`}>
-          {['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'].map(v => <span className="text-xs text-coolGray-500 text-center leading-loose" key={v}>{v}</span>)}
+          {['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'].map(v => <span className="text-xs text-coolGray-500 bg-white text-center leading-loose" key={v}>{v}</span>)}
         </div>
       }
-      <div className={`grid grid-cols-7 gap-2 auto-rows-fr ${tall ? 'h-auto' : 'h-auto'} w-auto transition-all`}>
+      <div className={`grid grid-cols-7 gap-px auto-rows-fr ${tall ? 'h-80' : 'h-16'} transition-all`}>
         {
-          (tall ? getCurrentMonth() : getCurrentWeek()).map((v, i) => <article className={`flex flex-col cursor-pointer ${isSelectedDate(v) ? 'border-blue-300' : 'border-transparent'} hover:bg-blue-200 rounded-full group transition-all`} key={i} onClick={() => setSelectedDate(dayjs(v))}>
-            <div className={`m-auto w-8 h-8 rounded-full ${isToday(v) ? 'bg-blue-100' : ''} group-hover:bg-blue-200 grid place-content-center text-xs font-extrabold ${v.day() ? v.day() === 6 ? 'text-blue-500' : 'text-slate-500' : 'text-red-500'} ${v.month() !== currentDate.month() ? 'text-slate-300' : ''}  group-hover:text-blue-50`}>{v.date()}</div>
+          (tall ? getCurrentMonth() : getCurrentWeek()).map((v, i) => <article className={`${v.month() !== currentDate.month() ? '' : 'bg-white'} flex flex-col border ${isSelectedDate(v) ? 'border-blue-300' : 'border-transparent'} hover:bg-blue-50 group transition-all`} key={i} onClick={() => setSelectedDate(dayjs(v))}>
+            <div className={`mt-1.5 mx-auto w-6 h-6 rounded-full ${isToday(v) ? 'bg-blue-50' : ''} grid place-content-center text-xs font-extrabold ${v.day() ? v.day() === 6 ? 'text-blue-500' : 'text-slate-500' : 'text-red-500'} group-hover:text-blue-500`}>{v.date()}</div>
+            <div className="m-auto flex">
+              <span className="bg-blue-500 w-1 h-1 mx-0.5 rounded-full"></span>
+              <span className="bg-yellow-500 w-1 h-1 mx-0.5 rounded-full"></span>
+              <span className="bg-green-500 w-1 h-1 mx-0.5 rounded-full"></span>
+              <span className="bg-red-500 w-1 h-1 mx-0.5 rounded-full"></span>
+            </div>
           </article>)
         }
       </div>
     </div>
-  </div>
+  </>
 }

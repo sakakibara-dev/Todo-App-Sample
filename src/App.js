@@ -15,7 +15,7 @@ function QuillEditor() {
   const [value, setValue] = useState('');
 
   return (
-    <ReactQuill className='flex flex-col h-full' preserveWhitespace theme="snow" value={value} onChange={setValue}/>
+    <ReactQuill className='flex flex-col h-full flex-shrink flex-grow-0 max-h-full min-h-0 bg-white' preserveWhitespace theme="snow" value={value} onChange={setValue}/>
   );
 }
 
@@ -124,18 +124,22 @@ function Buckup() {
 export default function App() {
   let [selectedDate, setSelectedDate] = useState(null);
 
-  return <div className="min-h-screen relative bg-slate-100">
-    <div className="flex w-full h-screen gap-8 p-8">
-      <div className="h-full w-5/12 flex flex-col gap-8">
-        <div className="shadow-lg shadow-sky-50 border border-gray-300">
+  return <div className="min-h-screen max-h-screen relative bg-slate-100">
+    <div className="flex w-full h-screen max-h-screen gap-8 p-8">
+      <div className="h-full flex flex-col gap-8 max-h-full">
+        <div className="flex gap-8">
           <Calendar onSelectDate={(v) => setSelectedDate(v)}/>
+          <div className='bg-blue-300 w-80 h-full'></div>
         </div>
-        <div className="quill h-full flex-grow shadow-sky-50 shadow-lg bg-white">
-          <QuillEditor />
+        <div className="max-h-full h-full flex-shrink min-h-0">
+          <div className='w-full h-full flex flex-col max-h-full flex-shrink flex-grow-0 min-h-0 min-w-0'>
+            <QuillEditor />
+            <div className='border-b border-slate-300 h-16'></div>
+          </div>
         </div>
       </div>
-      <div className="quill h-full flex-grow shadow shadow-blue-50">
-        <QuillEditor />
+      <div className="quill h-full flex-grow shadow shadow-blue-50 bg-white">
+        
       </div>
     </div>
   </div>

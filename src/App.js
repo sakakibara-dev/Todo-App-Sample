@@ -1,146 +1,99 @@
 import './App.css';
 import React, { useEffect, useState, useRef } from "react"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faBars } from '@fortawesome/free-solid-svg-icons'
-import { faTimesCircle, faUser } from '@fortawesome/free-regular-svg-icons';
 import Calendar from './components/calendar';
-import Weekly from "./components/weekly";
-import Inventory from './components/inventory';
-// import Editor from './components/editor';
+import { nanoid } from 'nanoid';
+import sanitizeHtml from 'sanitize-html';
 
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-function QuillEditor() {
+function QuillEditor(props) {
   const [value, setValue] = useState('');
+  useEffect(() => {
+    if(!!props.onChange) {props.onChange(value)};
+  }, [value]);
 
+  return <ReactQuill className='flex flex-col h-full flex-shrink flex-grow-0 max-h-full min-h-0 bg-white' preserveWhitespace theme="snow" onChange={setValue} />
+}
+
+function TodoCard(props) {
+  const [visible, setVisible] = useState(false);
+
+  function onDelete() {
+    if (!visible && props.onDelete) props.onDelete()
+  }
+
+  useEffect(() => {
+    setVisible(true)
+  }, [props]);
   return (
-    <ReactQuill className='flex flex-col h-full flex-shrink flex-grow-0 max-h-full min-h-0 bg-white' preserveWhitespace theme="snow" value={value} onChange={setValue}/>
-  );
-}
-
-function Modal(props) {
-  let [shouldRender, setRender] = useState(false);
-
-  useEffect(() => {
-    if (props.show) setRender(true);
-  }, [props.show]);
-
-  return (props.show || shouldRender ) && <section className={`absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex z-40 ${ (props.show && shouldRender) ? 'opacity-100' : 'opacity-0'} transition-opacity`} onClick={props.onClose} onTransitionEnd={ () => { setRender(props.show) }}>
-    <div className="w-screen h-screen fixed flex">
-      <div className="bg-white m-auto mt-16 md:m-auto w-3/4 md:w-1/2 flex flex-col" onClick={(e) => e.stopPropagation() }>
-        <FontAwesomeIcon icon={faTimesCircle} className="text-2xl mt-2 mr-2.5 ml-auto text-coolGray-500 cursor-pointer" onClick={props.onClose} />
-        <form className="p-8 space-y-4 leading-loose font-thin text-coolGray-500">
-          <div className="flex space-x-4">
-            <label for="input-date" className="w-12">日付</label>
-            <input type="date" id="input-date" className="px-2 flex-grow border rounded focus:border-orange-200 focus:outline-none" />
-          </div>
-          <div className="flex">
-            <span className="w-12">タイプ</span>
-            <span className="ml-4"><input type="radio" id="input-receiving" name="receiving-or-shipping"/><label for="input-receiving" className="ml-1">入荷</label></span>
-            <span className="ml-4"><input type="radio" id="input-shipment" name="receiving-or-shipping" checked className="ml-2"/><label for="input-shipment" className="ml-1">出荷</label></span>
-          </div>
-          <div className="flex space-x-4">
-            <label for="input-item-name">アイテム</label><input type="text" id="input-item-name" className="px-2 flex-grow border rounded focus:border-orange-200 focus:outline-none"/>
-          </div>
-          <div className="flex space-x-4">
-            <label for="input-contact">連絡先</label><input type="text" id="input-contact" className="px-2 flex-grow border rounded focus:border-orange-200 focus:outline-none"/>
-          </div>
-          <div className="flex space-x-4 h-32">
-            <label for="input-discription" className="w-12">詳細</label>
-            <textarea id="input-discription" className="px-2 flex-grow border rounded focus:border-orange-200 focus:outline-none" />
-          </div>
-          <div className="flex justify-end space-x-2 text-xs">
-            <button className="text-coolGray-400 w-24 h-8 rounded">キャンセル</button>
-            <button className="text-white bg-orange-400 w-24 h-8 rounded">OK</button>
-          </div>
-        </form>
+    <article className={'relative z-10 w-full px-4 py-2 bg-white shadow shadow-blue-100 rounded-lg shrink-0 flex flex-col group hover:shadow-lg transition-all duration-200 ' + (visible ? 'min-h-[12em] max-h-full opacity-100' : 'min-h-0 max-h-0 opacity-0')} onTransitionEnd={onDelete}>
+      <div className='w-full flex gap-4 border-slate-100 border-b'>
+        <span className='text-xl overflow-hidden whitespace-nowrap text-ellipsis'>{props.title || ""}</span>
+        <button className='px-2 ml-auto opacity-0 group-hover:opacity-100 transition-all' onClick={() => setVisible(false)}>✖</button>
       </div>
-    </div>
-  </section>
-}
-
-function Sidebar(props) {
-  let [shouldRender, setRender] = useState(false);
-
-  useEffect(() => {
-    if (props.show) setRender(true);
-  }, [props.show]);
-
-  return (props.show || shouldRender ) && <section className="z-40 h-screen w-screen pt-12 fixed flex" onClick={ props.onClose }>
-    <nav className={`${ (props.show && shouldRender) ? 'w-64' : 'w-0'} min-w-0 overflow-hidden bg-orange-50 text-orange-400 text-lg font-thin space-y-2 shadow-lg transition-all`} onClick={(e) => e.stopPropagation()} onTransitionEnd={ () => { setRender(props.show) }}>
-      <div className="w-full h-full p-6 space-y-1">
-        <div className="cursor-pointer">
-          ダッシュボード
-        </div>
-        <div className="cursor-pointer">
-          アカウント
-        </div>
-        <div className="cursor-pointer">
-          ヘルプ
-        </div>
+      <div className='flex-grow overflow-hidden' dangerouslySetInnerHTML={{ __html: sanitizeHtml(props.todo || "")}}></div>
+      <div className='flex gap-4'>
+        <span className='text-slate-500 text-sm ml-0 overflow-hidden whitespace-nowrap text-ellipsis'>{props.place || ""}</span>
+        <span className='text-slate-500 text-sm mr-0 ml-auto whitespace-nowrap'>{props.date || ""}</span>
       </div>
-    </nav>
-  </section>
-}
-
-//export default function App() {
-function Buckup() {
-  let [showModal, setShowModal] = useState(false);
-  let [showSidebar, setShowSidebar] = useState(false);
-  let [selectedDate, setSelectedDate] = useState(null);
-
-  return <div className="min-h-screen relative bg-gray-100">
-    <Modal show={showModal} onClose={() => setShowModal(false)}/>
-    <header className="flex h-12 w-full text-white bg-blue-600 z-10 fixed top-0 shadow-md shadow-blue-100">
-      <FontAwesomeIcon icon={faBars} className="my-auto ml-4 align-baseline text-2xl" onClick={() => setShowSidebar(true)} />
-      <h1 className="ml-2 my-auto mr-auto text-bold text-xl font-bold">inventory</h1>
-      <span className="text-sm my-auto ml-auto cursor-pointer">ヘルプ</span>
-      <div className="mx-4 my-auto rounded-full bg-white py-0.5 px-2 text-coolGray-700 text-base font-bold cursor-pointer">
-        <FontAwesomeIcon icon={faUser} /> {"email"}
-      </div>
-    </header>
-    <Sidebar show={showSidebar} onClose={() => setShowSidebar(false)}/>
-    <main className="flex flex-col md:flex-row md:px-4 lg:px-32 md:space-x-8 lg:space-x-32 bg-slate-100">
-      <section className="pb-12 md:pt-16 pt-16 md:w-5/12 flex flex-col md:h-screen md:sticky top-0">
-        <section className="bg-slate-50 shadow-lg shadow-sky-50 text-coolGray-700 text-lg">
-          <Calendar onSelectDate={(v) => setSelectedDate(v)}/>
-        </section>
-        <section className="px-4 md:px-0 mt-12 h-52 flex-grow">
-          <Weekly selectedDate={selectedDate}/>
-        </section>
-      </section>
-      <section className="pb-8 pt-16 md:w-7/12">
-        <Inventory />
-      </section>
-    </main>
-    <button className="w-12 h-12 bottom-4 right-4 fixed bg-blue-500 text-white text-lg rounded-full focus:outline-none" onClick={() => setShowModal(true)}>
-      <FontAwesomeIcon icon={faPlus} />
-    </button>
-  </div>
+    </article>
+  )
 }
 
 
 export default function App() {
-  let [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [value, setValue] = useState('');
+  const [title, setTitle] = useState('');
+  const [place, setPlace] = useState('');
+  const [todoList, setTodoList] = useState([]);
+  const [submitEnable, setSubmitEnable] = useState(false);
 
-  return <div className="min-h-screen max-h-screen relative bg-slate-100">
-    <div className="flex w-full h-screen max-h-screen gap-8 p-8">
-      <div className="h-full flex flex-col gap-8 max-h-full">
-        <div className="flex gap-8">
-          <Calendar onSelectDate={(v) => setSelectedDate(v)}/>
-          <div className='bg-blue-300 w-80 h-full'></div>
-        </div>
-        <div className="max-h-full h-full flex-shrink min-h-0">
-          <div className='w-full h-full flex flex-col max-h-full flex-shrink flex-grow-0 min-h-0 min-w-0'>
-            <QuillEditor />
-            <div className='border-b border-slate-300 h-16'></div>
+  useEffect(() => {
+    if ((value !== '<p><br></p>' && value !== '') || title !== '' || place !== '') { 
+      setSubmitEnable(true);
+    }
+    else {
+      setSubmitEnable(false);
+    }
+  }, [value, title, place]);
+
+  return <div className="max-h-screen h-screen w-screen min-h-[600px] min-w-[800px] flex-grow relative bg-slate-100 pt-10">
+    <header className='bg-blue-500 h-10 w-full absolute top-0 flex'>
+      <h1 className='text-white text-lg my-auto ml-4'>Todo App</h1>
+    </header>
+    <div className='flex h-full p-8 gap-6'>
+      <div className="flex flex-col max-w-xl flex-shrink-0 w-full mx-auto h-full max-h-full">
+        <div className="h-full flex w-full flex-col gap-8 max-h-full">
+          <div className="flex gap-8 w-full">
+            <Calendar onSelectDate={setSelectedDate} />
+            <div className='flex-grow h-full flex flex-col gap-6'>
+              <span className='text-xl font-extrabold mt-4 text-slate-900'>{selectedDate && selectedDate.format('YYYY/MM/DD')}</span>
+              <div className='h-full flex flex-col gap-8 border p-2'>
+                <span className='text-slate-500 text-sm'>option</span>
+                <input className='border-b border-slate-300 text-lg text-slate-700 bg-opacity-0 bg-white py-1 px-2 w-full focus:border-orange-300 focus:outline-none' placeholder='title' onChange={e => setTitle(e.target.value)}/>
+                <input className='border-b border-slate-300 text-lg text-slate-700 bg-opacity-0 bg-white py-1 px-2 w-full focus:border-orange-300 focus:outline-none' placeholder='place' onChange={e => setPlace(e.target.value)}/>
+              </div>
+            </div>
+          </div>
+          <div className="max-h-full h-full flex-shrink min-h-0">
+            <div className='w-full h-full flex flex-col max-h-full flex-grow min-h-0 min-w-0'>
+              <QuillEditor onChange={setValue} />
+              <div className='flex'>
+                <button type="button" className='ml-auto px-2 py-0.5 disabled:opacity-20' disabled={!submitEnable} onClick={() => setTodoList([...todoList, {date: selectedDate.format('YYYY-MM-DD'), todo: value, title: title, place: place, id: nanoid(7)}])}>
+                  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 20 20" width="20px" fill="#334155"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M4.01 6.03l7.51 3.22-7.52-1 .01-2.22m7.5 8.72L4 17.97v-2.22l7.51-1M2.01 3L2 10l15 2-15 2 .01 7L23 12 2.01 3z"/></svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div className="quill h-full flex-grow shadow shadow-blue-50 bg-white">
-        
-      </div>
+      <section className='h-full max-h-full overflow-y-auto px-2 flex-grow flex flex-col gap-4 min-w-[20em]'>
+        {todoList.length ? 
+            todoList.map((v, i) => <TodoCard key={v.id} todo={v.todo} title={v.title} place={v.place} date={v.date} onDelete={() => setTodoList([...todoList.filter((_, j) => i !== j)])}/>)
+          : <div className='h-full grid place-items-center text-slate-900'>タスクはありません</div>}
+      </section>
     </div>
   </div>
 }

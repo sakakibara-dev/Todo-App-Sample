@@ -1,11 +1,11 @@
 self.__precacheManifest = [
   {
-    "revision": "bc140c8a668f97dac3ea",
-    "url": "/Todo-App-Sample/static/css/main.e20336b5.chunk.css"
+    "revision": "1b81929536230d108e36",
+    "url": "/Todo-App-Sample/static/css/main.9f706ab0.chunk.css"
   },
   {
-    "revision": "bc140c8a668f97dac3ea",
-    "url": "/Todo-App-Sample/static/js/main.bc140c8a.chunk.js"
+    "revision": "1b81929536230d108e36",
+    "url": "/Todo-App-Sample/static/js/main.1b819295.chunk.js"
   },
   {
     "revision": "cb3033c0b56a10084252",
@@ -24,7 +24,7 @@ self.__precacheManifest = [
     "url": "/Todo-App-Sample/static/js/runtime~main.63116a93.js"
   },
   {
-    "revision": "4dab5d8d0ca9eaf6059ee2bf070cf934",
+    "revision": "cc574ca6881a5cabca58cfbc2df176ca",
     "url": "/Todo-App-Sample/index.html"
   }
 ];
